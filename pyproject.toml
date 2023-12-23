@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "snat"
+requires-python = ">=3.10"
+authors = [
+    {name = "Theo Guerin", email = "tguerin@student.42angouleme.fr"}
+]
+description = "Helps you track your Steam achievements"
+readme = "README.md"
+license = { text = "GPL-3.0-only" }
+keywords = ["steam", "achievement", "gui", "pyqt"]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+]
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+Repository = "https://github.com/TheoGuerin64/snat"
+Issues = "https://github.com/TheoGuerin64/snat/issues"
+
+[project.gui-scripts]
+snat = "snat.__main__:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "snat.__version__"}
+dependencies = {file = ["requirements.txt"]}

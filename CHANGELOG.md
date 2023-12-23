@@ -1,0 +1,11 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+## [0.1.1]
+- Fix application name
+
+## [0.1.0]
+- Add version command (`-v` or `--version`)
+
+## [0.0.0]
+- Initial release

@@ -1,0 +1,115 @@
+name: publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish"
+        required: true
+        default: "0.0.0"
+
+permissions:
+  contents: read
+
+run-name: Publish ${{ github.event.inputs.version }}
+jobs:
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt mypy
+
+      - name: Test typing with mypy
+        run: |
+          mypy snat
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install flake8
+
+      - name: Lint with flake8
+        run: |
+          flake8 snat
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+        cache: pip
+
+    - name: Install dependencies
+      run: |
+        pip install build
+
+    - name: Build package
+      run: python -m build
+
+    - name: Store build
+      uses: actions/upload-artifact@v4
+      with:
+        name: build
+        path: dist
+
+  release:
+    needs: [ type-check, lint, build ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Download build
+      uses: actions/download-artifact@v4
+      with:
+        name: build
+        path: dist
+
+    - name: Generate body
+      run: |
+        version=${{ github.event.inputs.version }}
+        echo "changes: https://github.com/TheoGuerin64/snat/blob/main/CHANGELOG.md#"${version//.} >> BODY.md
+
+    - name: Release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ github.event.inputs.version }}
+        bodyFile: BODY.md
+        artifacts: "dist/*"
+
+  deploy:
+    needs: [ type-check, lint, build ]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+    - name: Download build
+      uses: actions/download-artifact@v4
+      with:
+        name: build
+        path: dist
+
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@release/v1
