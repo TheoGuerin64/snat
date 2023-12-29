@@ -5,6 +5,7 @@ on:
     inputs:
       version:
         description: "Version to publish"
+        type: string
         required: true
         default: "0.0.0"
 
@@ -88,15 +89,16 @@ jobs:
         path: dist
 
     - name: Generate body
+      id: generate-body
       run: |
-        version=${{ github.event.inputs.version }}
-        echo "changes: https://github.com/TheoGuerin64/snat/blob/main/CHANGELOG.md#"${version//.} >> BODY.md
+        id=$(echo ${{ github.event.inputs.version }} | sed 's/\.//g' )
+        echo "body=changes: https://github.com/TheoGuerin64/snat/blob/main/CHANGELOG.md#$id" >> $GITHUB_OUTPUT
 
     - name: Release
       uses: ncipollo/release-action@v1
       with:
         tag: ${{ github.event.inputs.version }}
-        bodyFile: BODY.md
+        body: ${{ steps.generate-body.outputs.body }}
         artifacts: "dist/*"
 
   deploy:
