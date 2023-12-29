@@ -46,6 +46,7 @@ class App(QtWidgets.QMainWindow):
         QtCore.QCoreApplication.setApplicationName("Snat")
         QtCore.QCoreApplication.setOrganizationName("Theo Guerin")
         QtCore.QCoreApplication.setApplicationVersion(__version__)
+        self.setWindowIcon(QtGui.QIcon("asset:icon.ico"))
 
         self.settings = Settings(self)
         if self.settings.position is not None:

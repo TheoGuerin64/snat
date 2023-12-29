@@ -3,7 +3,7 @@ import logging
 import sys
 from pathlib import Path
 
-from PyQt6 import QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from . import __version__
 from .app import App
@@ -30,6 +30,10 @@ def configure_logging(debug: bool) -> None:
     )
 
 
+def config_search_path() -> None:
+    QtCore.QDir.addSearchPath("asset", str(Path(__file__).parent.parent / "asset"))
+
+
 def start_app() -> None:
     app = QtWidgets.QApplication(sys.argv[:1])
     window = App()
@@ -40,6 +44,7 @@ def start_app() -> None:
 def main():
     args = parse_args()
     configure_logging(args.debug)
+    config_search_path()
     logging.info("Starting Steam Achievement Tracker")
     start_app()
 
