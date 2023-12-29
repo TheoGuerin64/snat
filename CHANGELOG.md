@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.2]
+- Add application version
+- Fix file logging handler level
+
 ## [0.1.1]
 - Fix application name
 
