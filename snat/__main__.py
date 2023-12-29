@@ -17,10 +17,17 @@ def parse_args() -> argparse.Namespace:
 
 
 def configure_logging(debug: bool) -> None:
-    log_path = Path(__file__).parent.parent / "latest.log"
-    log_level = logging.DEBUG if debug else logging.WARNING
-    logging.basicConfig(level=log_level, format="[%(asctime)s] [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s",
-                        handlers=[logging.StreamHandler(), logging.FileHandler(log_path)])
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.DEBUG if debug else logging.WARNING)
+
+    file_handler = logging.FileHandler(Path(__file__).parent.parent / "latest.log")
+    file_handler.setLevel(logging.INFO)
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="[%(asctime)s] [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s",
+        handlers=[stream_handler, file_handler]
+    )
 
 
 def start_app() -> None:
