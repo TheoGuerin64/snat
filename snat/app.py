@@ -1,5 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from . import __version__
 from .achievement_list import AchievementList
 from .game_list import GameList, GameListBar
 from .settings import Settings
@@ -44,6 +45,7 @@ class App(QtWidgets.QMainWindow):
 
         QtCore.QCoreApplication.setApplicationName("Snat")
         QtCore.QCoreApplication.setOrganizationName("Theo Guerin")
+        QtCore.QCoreApplication.setApplicationVersion(__version__)
 
         self.settings = Settings(self)
         if self.settings.position is not None:
