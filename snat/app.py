@@ -43,13 +43,8 @@ class App(QtWidgets.QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.configure()
-
         self.settings = Settings(self)
-        if self.settings.position is not None:
-            self.move(self.settings.position)
-        if self.settings.size is not None:
-            self.resize(self.settings.size)
-
+        self.restore()
         self.setCentralWidget(MainWidget(self, self.settings))
 
     def configure(self) -> None:
@@ -57,6 +52,12 @@ class App(QtWidgets.QMainWindow):
         QtCore.QCoreApplication.setOrganizationName("Theo Guerin")
         QtCore.QCoreApplication.setApplicationVersion(__version__)
         self.setWindowIcon(QtGui.QIcon("asset:icon.ico"))
+
+    def restore(self) -> None:
+        if self.settings.position is not None:
+            self.move(self.settings.position)
+        if self.settings.size is not None:
+            self.resize(self.settings.size)
 
     def moveEvent(self, event: QtGui.QMoveEvent | None) -> None:
         super().moveEvent(event)
