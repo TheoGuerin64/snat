@@ -45,7 +45,7 @@ def main():
     args = parse_args()
     configure_logging(args.debug)
     config_search_path()
-    logging.info("Starting Steam Achievement Tracker")
+    logging.info(f"Start Steam Achievement Tracker {__version__} with PyQt6 {QtCore.PYQT_VERSION_STR}")
     start_app()
 
 

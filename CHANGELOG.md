@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0]
 - Add icon
+- Add version in logs
 
 ## [0.1.2]
 - Add application version
