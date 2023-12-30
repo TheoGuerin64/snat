@@ -39,7 +39,7 @@ class MainWidget(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(layout)
 
-        self.game_list_bar = GameListBar(self, self.steam_api, self.game_list)
+        self.game_list_bar = GameListBar(self.steam_api, self.game_list, self)
         layout.addWidget(self.game_list_bar)
 
         self.achievement_list = AchievementList(self, self.steam_api, self.game_list)
