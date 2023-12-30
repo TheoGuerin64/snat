@@ -13,7 +13,7 @@ class AboutDialog(QtWidgets.QDialog):
     """Dialog that display information about the application.
 
     Args:
-        parent (QtWidgets.QWidget): Parent widget
+        parent (PyQt6.QtWidgets.QWidget): Parent widget
     """
 
     def __init__(self, parent: QtWidgets.QWidget) -> None:
@@ -41,7 +41,7 @@ class AboutDialog(QtWidgets.QDialog):
         """Initialize the top part of the user interface.
 
         Returns:
-            QtWidgets.QHBoxLayout: The top layout
+            PyQt6.QtWidgets.QHBoxLayout: The top layout
         """
         top_layout = QtWidgets.QHBoxLayout()
         label = QtWidgets.QLabel(self)
@@ -58,7 +58,7 @@ class AboutDialog(QtWidgets.QDialog):
         """Initialize the form layout.
 
         Returns:
-            QtWidgets.QFormLayout: The form layout
+            PyQt6.QtWidgets.QFormLayout: The form layout
         """
         form = QtWidgets.QFormLayout()
         version_url = f"{CHANGELOG_URL}#{__version__.replace('.', '')}"

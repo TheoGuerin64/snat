@@ -28,10 +28,13 @@ class EmptyIcon(QtGui.QIcon):
 class AchievementWidget(QtWidgets.QListWidgetItem):
     """A widget that displays an achievement
 
+    Attributes:
+        icon_url (str): The URL of the icon
+
     Args:
         name (str): The name of the achievement
         icon_url (str): The URL of the icon
-        steam_api (SteamApi): The SteamApi instance to use
+        steam_api (snat.steam_api.SteamApi): SteamApi instance
     """
 
     def __init__(self, name: str, icon_url: str, steam_api: SteamApi) -> None:
@@ -43,7 +46,7 @@ class AchievementWidget(QtWidgets.QListWidgetItem):
         """Load the icon from the cache or request it if it doesn't exist
 
         Args:
-            steam_api (SteamApi): The SteamApi instance to use
+            steam_api (snat.steam_api.SteamApi): SteamApi instance
         """
         pixmap = QtGui.QPixmapCache.find(self.icon_url)
         if pixmap is not None:
@@ -70,10 +73,18 @@ class AchievementWidget(QtWidgets.QListWidgetItem):
 class AchievementList(QtWidgets.QListWidget):
     """A list that displays achievements
 
+    Constants:
+        WELCOME_MESSAGE (str): Message that is displayed when no game is selected
+        COMPLETED_MESSAGE (str): Message that is displayed when all achievements are completed
+
+    Attributes:
+        steam_api (snat.steam_api.SteamApi): SteamApi instance
+        game_list (snat.game_list.GameList): GameList instance
+
     Args:
         parent (QtWidgets.QWidget): The parent widget
-        steam_api (SteamApi): The SteamApi instance to use
-        game_list (GameList): The GameList instance to use
+        steam_api (snat.steam_api.SteamApi): SteamApi instance
+        game_list (snat.game_list.GameList): GameList instance
     """
 
     WELCOME_MESSAGE = "Select a game to view its achievements"
@@ -88,7 +99,7 @@ class AchievementList(QtWidgets.QListWidget):
         """Add achievements to the list
 
         Args:
-            achievements (list[Achievement]): The achievements to add
+            achievements (list[snat.game_list.Achievement]): The achievements to add
         """
         if achievements:
             self.setEnabled(True)

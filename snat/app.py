@@ -11,9 +11,14 @@ from .steam_api import SteamApi
 class MainWidget(QtWidgets.QWidget):
     """The main widget of the application
 
+    Attributes:
+        settings (snat.settings.Settings): Settings instance
+        steam_api (snat.steam_api.SteamApi): SteamApi instance
+        game_list (snat.game_list.GameList): The game list
+
     Args:
-        parent (QtWidgets.QWidget): The parent widget
-        settings (Settings): The Settings instance to use
+        parent (PyQt6.QtWidgets.QWidget): The parent widget
+        settings (snat.settings.Settings): Settings instance
     """
 
     def __init__(self, parent: QtWidgets.QWidget, settings: Settings) -> None:
@@ -51,7 +56,12 @@ class MainWidget(QtWidgets.QWidget):
 
 
 class App(QtWidgets.QMainWindow):
-    """The main application window"""
+    """The main application
+
+    Attributes:
+        settings (snat.settings.Settings): Settings instance
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.configure()

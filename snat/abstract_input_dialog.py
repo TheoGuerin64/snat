@@ -18,7 +18,7 @@ class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
         validate: Validates the input
 
     Args:
-        parent (QtWidgets.QWidget | None): The parent widget
+        parent (PyQt6.QtWidgets.QWidget | None): The parent widget
     """
 
     TITLE: str
@@ -77,7 +77,7 @@ class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
 
 
 class AbstractRequestInputDialog(AbstractInputDialog):
-    """Base class for dialogs that require user input and make a request.
+    """Override AbstractInputDialog to make a request after validating the input.
 
     Abstract constants:
         TITLE (str): The title of the dialog
@@ -89,8 +89,11 @@ class AbstractRequestInputDialog(AbstractInputDialog):
         url: Returns the URL to request
         validate_reply: Validates the reply from the request
 
+    Attributes:
+        manager (PyQt6.QtNetwork.QNetworkAccessManager): The network access manager
+
     Args:
-        parent (QtWidgets.QWidget | None): The parent widget
+        parent (PyQt6.QtWidgets.QWidget | None): The parent widget
     """
 
     def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:
@@ -115,7 +118,7 @@ class AbstractRequestInputDialog(AbstractInputDialog):
         """Validates the reply from the request.
 
         Args:
-            reply (QtNetwork.QNetworkReply): The reply from the request
+            reply (PyQt6.QtNetwork.QNetworkReply): The reply from the request
 
         Returns:
             bool: Reply is valid
@@ -133,7 +136,7 @@ class AbstractRequestInputDialog(AbstractInputDialog):
         """Handles the response from the request.
 
         Args:
-            reply (QtNetwork.QNetworkReply): The reply from the request
+            reply (PyQt6.QtNetwork.QNetworkReply): The reply from the request
         """
         if self.validate_reply(reply):
             super().accept()
