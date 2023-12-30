@@ -15,6 +15,7 @@ class AboutDialog(QtWidgets.QDialog):
     Args:
         parent (QtWidgets.QWidget): Parent widget
     """
+
     def __init__(self, parent: QtWidgets.QWidget) -> None:
         super().__init__(parent)
         self.init_ui()

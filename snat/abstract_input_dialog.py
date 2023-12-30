@@ -7,6 +7,20 @@ from .utils import ABCQtMeta, LinkLabel
 
 
 class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
+    """Base class for dialogs that require user input.
+
+    Abstract constants:
+        TITLE (str): The title of the dialog
+        TEXT (str): The text to display above the input box
+        INPUT_NAME (str): The name of the input box
+
+    Abstract methods:
+        validate: Validates the input
+
+    Args:
+        parent (QtWidgets.QWidget | None): The parent widget
+    """
+
     TITLE: str
     TEXT: str
     INPUT_NAME: str
@@ -16,6 +30,7 @@ class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
         self.init_ui()
 
     def init_ui(self) -> None:
+        """Initializes the UI."""
         self.setWindowTitle(self.TITLE)
 
         layout = QtWidgets.QVBoxLayout(self)
@@ -36,9 +51,18 @@ class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
 
     @abstractmethod
     def validate(self, input: str) -> bool:
+        """Validates the input.
+
+        Args:
+            input (str): The input to validate
+
+        Returns:
+            bool: Input is valid
+        """
         return False
 
     def accept(self) -> None:
+        """Override to validate the input before accepting."""
         if self.input.text() == "":
             QtWidgets.QMessageBox.critical(self, "Error", f"No {self.INPUT_NAME} provided")
             logging.warning(f"No {self.INPUT_NAME} provided")
@@ -53,6 +77,22 @@ class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
 
 
 class AbstractRequestInputDialog(AbstractInputDialog):
+    """Base class for dialogs that require user input and make a request.
+
+    Abstract constants:
+        TITLE (str): The title of the dialog
+        TEXT (str): The text to display above the input box
+        INPUT_NAME (str): The name of the input box
+
+    Abstract methods:
+        validate: Validates the input
+        url: Returns the URL to request
+        validate_reply: Validates the reply from the request
+
+    Args:
+        parent (QtWidgets.QWidget | None): The parent widget
+    """
+
     def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:
         super().__init__(parent)
         self.manager = QtNetwork.QNetworkAccessManager(self)
@@ -60,19 +100,41 @@ class AbstractRequestInputDialog(AbstractInputDialog):
 
     @abstractmethod
     def url(self, text: str) -> str:
+        """Returns the URL to request.
+
+        Args:
+            text (str): The input text
+
+        Returns:
+            str: The URL
+        """
         return "Error"
 
     @abstractmethod
     def validate_reply(self, reply: QtNetwork.QNetworkReply) -> bool:
+        """Validates the reply from the request.
+
+        Args:
+            reply (QtNetwork.QNetworkReply): The reply from the request
+
+        Returns:
+            bool: Reply is valid
+        """
         return False
 
     def make_request(self) -> None:
+        """Makes the GET request."""
         self.setDisabled(True)
         url = QtCore.QUrl(self.url(self.input.text()))
         request = QtNetwork.QNetworkRequest(url)
         self.manager.get(request)
 
     def handle_response(self, reply: QtNetwork.QNetworkReply):
+        """Handles the response from the request.
+
+        Args:
+            reply (QtNetwork.QNetworkReply): The reply from the request
+        """
         if self.validate_reply(reply):
             super().accept()
         else:
@@ -81,6 +143,7 @@ class AbstractRequestInputDialog(AbstractInputDialog):
         self.setDisabled(False)
 
     def accept(self) -> None:
+        """Override to validate the input before accepting."""
         if self.input.text() == "":
             QtWidgets.QMessageBox.critical(self, "Error", f"No {self.INPUT_NAME} provided")
             logging.warning(f"No {self.INPUT_NAME} provided")
