@@ -4,3 +4,4 @@ Future plans for the project:
 - Add cancel button for game data loading
 - Add wiki button
 - Improve schemas downloading performance
+- Add version checking
