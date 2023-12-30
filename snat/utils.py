@@ -21,3 +21,11 @@ class DotAnimationLabel(QtWidgets.QLabel):
             self.setText(text[:-3])
         else:
             self.setText(text + ".")
+
+
+class LinkLabel(QtWidgets.QLabel):
+    """Label that opens a link when clicked."""
+
+    def __init__(self, text: str | None = None, parent: QtWidgets.QWidget | None = None) -> None:
+        super().__init__(text, parent)
+        self.setOpenExternalLinks(True)

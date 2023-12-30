@@ -3,7 +3,7 @@ from abc import abstractmethod
 
 from PyQt6 import QtCore, QtNetwork, QtWidgets
 
-from .utils import ABCQtMeta
+from .utils import ABCQtMeta, LinkLabel
 
 
 class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
@@ -21,8 +21,7 @@ class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
         layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(layout)
 
-        self.label = QtWidgets.QLabel(self.TEXT, self)
-        self.label.setOpenExternalLinks(True)
+        self.label = LinkLabel(self.TEXT, self)
         layout.addWidget(self.label)
 
         self.input = QtWidgets.QLineEdit(self)
