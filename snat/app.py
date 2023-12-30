@@ -1,6 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from . import __version__
+from .about import AboutDialog
 from .achievement_list import AchievementList
 from .game_list import GameList, GameListBar
 from .settings import Settings
@@ -45,19 +46,38 @@ class App(QtWidgets.QMainWindow):
         self.configure()
         self.settings = Settings(self)
         self.restore()
-        self.setCentralWidget(MainWidget(self, self.settings))
+        self.init_ui()
 
     def configure(self) -> None:
         QtCore.QCoreApplication.setApplicationName("Snat")
         QtCore.QCoreApplication.setOrganizationName("Theo Guerin")
         QtCore.QCoreApplication.setApplicationVersion(__version__)
-        self.setWindowIcon(QtGui.QIcon("asset:icon.ico"))
 
     def restore(self) -> None:
         if self.settings.position is not None:
             self.move(self.settings.position)
         if self.settings.size is not None:
             self.resize(self.settings.size)
+
+    def init_ui(self) -> None:
+        self.setWindowIcon(QtGui.QIcon("asset:icon.ico"))
+        self.init_menu_bar()
+        self.setCentralWidget(MainWidget(self, self.settings))
+
+    def init_menu_bar(self) -> None:
+        menu_bar = self.menuBar()
+        if menu_bar is None:
+            raise RuntimeError("No menu bar")
+
+        file_menu = menu_bar.addMenu("&File")
+        if file_menu is None:
+            raise RuntimeError("No file menu")
+        file_menu.addAction("&Exit", "Ctrl+Q", self.close)
+
+        help_menu = menu_bar.addMenu("&Help")
+        if help_menu is None:
+            raise RuntimeError("No help menu")
+        help_menu.addAction("&About", lambda: AboutDialog(self).exec())
 
     def moveEvent(self, event: QtGui.QMoveEvent | None) -> None:
         super().moveEvent(event)

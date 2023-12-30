@@ -38,7 +38,8 @@ class SteamApi:
                          raw: bool = False, other: Any = None) -> None:
         request = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
         reply = self.manager.get(request)
-        assert reply is not None
+        if reply is None:
+            raise Exception("Network error")
         self.requests[reply] = RequestData(func, error, raw, other)
 
     def handle_response(self, reply: QtNetwork.QNetworkReply):
