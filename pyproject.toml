@@ -28,3 +28,6 @@ snat = "snat.__main__:main"
 [tool.setuptools.dynamic]
 version = {attr = "snat.__version__"}
 dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.package-data]
+"snat.asset" = ["*.ico"]

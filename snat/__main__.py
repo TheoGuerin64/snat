@@ -20,7 +20,7 @@ def configure_logging(debug: bool) -> None:
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG if debug else logging.WARNING)
 
-    file_handler = logging.FileHandler(Path(__file__).parent.parent / "latest.log")
+    file_handler = logging.FileHandler(Path(__file__).parent / "latest.log")
     file_handler.setLevel(logging.INFO)
 
     logging.basicConfig(
@@ -31,7 +31,7 @@ def configure_logging(debug: bool) -> None:
 
 
 def config_search_path() -> None:
-    QtCore.QDir.addSearchPath("asset", str(Path(__file__).parent.parent / "asset"))
+    QtCore.QDir.addSearchPath("asset", str(Path(__file__).parent / "asset"))
 
 
 def start_app() -> None:
