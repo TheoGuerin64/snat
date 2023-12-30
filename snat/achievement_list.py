@@ -8,11 +8,14 @@ from .steam_api import SteamApi
 
 
 class EmptyIcon(QtGui.QIcon):
+    """An icon that is empty and transparent"""
+
     def __init__(self) -> None:
         super().__init__()
         self.addPixmap(self.load_pixmap())
 
     def load_pixmap(self) -> QtGui.QPixmap:
+        """Load the pixmap from the cache or create it if it doesn't exist"""
         pixmap = QtGui.QPixmapCache.find("empty_icon")
         if pixmap is None:
             logging.debug("empty_icon not found in cache")
@@ -23,12 +26,25 @@ class EmptyIcon(QtGui.QIcon):
 
 
 class AchievementWidget(QtWidgets.QListWidgetItem):
+    """A widget that displays an achievement
+
+    Args:
+        name (str): The name of the achievement
+        icon_url (str): The URL of the icon
+        steam_api (SteamApi): The SteamApi instance to use
+    """
+
     def __init__(self, name: str, icon_url: str, steam_api: SteamApi) -> None:
         super().__init__(EmptyIcon(), name)
         self.icon_url = icon_url
         self.load_icon(steam_api)
 
     def load_icon(self, steam_api: SteamApi) -> None:
+        """Load the icon from the cache or request it if it doesn't exist
+
+        Args:
+            steam_api (SteamApi): The SteamApi instance to use
+        """
         pixmap = QtGui.QPixmapCache.find(self.icon_url)
         if pixmap is not None:
             self.setIcon(QtGui.QIcon(pixmap))
@@ -36,16 +52,30 @@ class AchievementWidget(QtWidgets.QListWidgetItem):
             steam_api.make_get_request(self.icon_url, self.handle_response, self.handle_error, True, self.icon_url)
 
     def handle_response(self, data: bytes, _) -> None:
+        """Handle the response of the icon request
+
+        Args:
+            data (bytes): The data of the icon
+        """
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(data)
         self.setIcon(QtGui.QIcon(pixmap))
         QtGui.QPixmapCache.insert(self.icon_url, pixmap)
 
     def handle_error(self, *_) -> None:
+        """Handle the error of the icon request"""
         logging.warning("Failed to load icon")
 
 
 class AchievementList(QtWidgets.QListWidget):
+    """A list that displays achievements
+
+    Args:
+        parent (QtWidgets.QWidget): The parent widget
+        steam_api (SteamApi): The SteamApi instance to use
+        game_list (GameList): The GameList instance to use
+    """
+
     WELCOME_MESSAGE = "Select a game to view its achievements"
     COMPLETED_MESSAGE = "You've completed all achievements for this game!"
 
@@ -55,16 +85,25 @@ class AchievementList(QtWidgets.QListWidget):
         self.game_list = game_list
 
     def add_achievements(self, achievements: list[Achievement]) -> None:
-        match achievements:
-            case []:
-                self.setEnabled(False)
-                self.addItem(self.COMPLETED_MESSAGE)
-            case _:
-                self.setEnabled(True)
-                for achievement in sorted(achievements, key=lambda achievement: achievement.name.lower()):
-                    self.addItem(AchievementWidget(achievement.name, achievement.icon, self.steam_api))
+        """Add achievements to the list
+
+        Args:
+            achievements (list[Achievement]): The achievements to add
+        """
+        if achievements:
+            self.setEnabled(True)
+            for achievement in sorted(achievements, key=lambda achievement: achievement.name.lower()):
+                self.addItem(AchievementWidget(achievement.name, achievement.icon, self.steam_api))
+        else:
+            self.setEnabled(False)
+            self.addItem(self.COMPLETED_MESSAGE)
 
     def load_achievements(self, app_id: int | None) -> None:
+        """Load the achievements for the given app_id
+
+        Args:
+            app_id (int | None): The app_id to load the achievements for
+        """
         self.clear()
         if app_id is None or app_id == -1:
             self.setEnabled(False)
@@ -74,6 +113,12 @@ class AchievementList(QtWidgets.QListWidget):
         self.steam_api.get_game_achievements(app_id, self.handle_game_achievements, self.handle_error)
 
     def handle_game_achievements(self, data: Any, app_id: int) -> None:
+        """Handle the response of the game achievements request
+
+        Args:
+            data (Any): The response data
+            app_id (int): The app_id of the game
+        """
         game = self.game_list.get(app_id)
         if game is None:
             logging.error(f"Failed to load schema for app_id {app_id}")
@@ -85,6 +130,7 @@ class AchievementList(QtWidgets.QListWidget):
         self.add_achievements(achievements)
 
     def handle_error(self, *_) -> None:
+        """Handle the error of the game achievements request"""
         self.setEnabled(False)
         QtWidgets.QMessageBox.critical(self, "Error", "Failed to load achievements!\n"
                                        "(You can try to change the game)")
