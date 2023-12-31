@@ -8,16 +8,16 @@ from .settings import Settings
 from .steam_api import SteamApi
 
 
-class MainWidget(QtWidgets.QWidget):
-    """The main widget of the application
+class GameDashboard(QtWidgets.QWidget):
+    """Widget that displays the game list and the achievement list
 
     Attributes:
         settings (snat.settings.Settings): Settings instance
-        steam_api (snat.steam_api.SteamApi): SteamApi instance
-        game_list (snat.game_list.GameList): The game list
+        steam_api (snat.steam_api.SteamApi): SteamApi
+        game_list (snat.game_list.GameList): Game list
 
     Args:
-        parent (PyQt6.QtWidgets.QWidget): The parent widget
+        parent (PyQt6.QtWidgets.QWidget): Parent widget
         settings (snat.settings.Settings): Settings instance
     """
 
@@ -25,7 +25,7 @@ class MainWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self.settings = settings
         self.steam_api = SteamApi(self, self.settings.steam_api_key, self.settings.steam_user_id)
-        self.game_list: GameList = self.settings.game_list_cache
+        self.game_list: GameList = self.settings.game_list_cache or GameList()
         self.init_ui()
 
         self.game_list_bar.loaded.connect(self.on_games_loaded)
@@ -35,7 +35,7 @@ class MainWidget(QtWidgets.QWidget):
             self.game_list_bar.select_game(self.settings.selected_game)
 
     def init_ui(self) -> None:
-        """Initialize the UI"""
+        """Create widgets and set the layout."""
         layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(layout)
 
@@ -46,11 +46,11 @@ class MainWidget(QtWidgets.QWidget):
         layout.addWidget(self.achievement_list)
 
     def on_games_loaded(self) -> None:
-        """Called when the game list has been loaded"""
+        """Cache the game list"""
         self.settings.game_list_cache = self.game_list
 
     def on_game_selected(self, app_id: int) -> None:
-        """Called when a game has been selected"""
+        """Cache the selected game and load the achievements"""
         self.settings.selected_game = app_id
         self.achievement_list.load_achievements(app_id)
 
@@ -60,14 +60,18 @@ class App(QtWidgets.QMainWindow):
 
     Attributes:
         settings (snat.settings.Settings): Settings instance
+
+    Args:
+        parent (PyQt6.QtWidgets.QWidget): Parent widget
     """
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:
+        super().__init__(parent)
         self.configure()
         self.settings = Settings(self)
         self.restore()
         self.init_ui()
+        self.setCentralWidget(GameDashboard(self, self.settings))
 
     def configure(self) -> None:
         """Configure the application informations"""
@@ -83,13 +87,12 @@ class App(QtWidgets.QMainWindow):
             self.resize(self.settings.size)
 
     def init_ui(self) -> None:
-        """Initialize the UI"""
+        """Set the window icon and create the menu bar"""
         self.setWindowIcon(QtGui.QIcon("asset:icon.ico"))
         self.init_menu_bar()
-        self.setCentralWidget(MainWidget(self, self.settings))
 
     def init_menu_bar(self) -> None:
-        """Initialize the menu bar"""
+        """Create the menu bar and its menus"""
         menu_bar = self.menuBar()
         if menu_bar is None:
             raise RuntimeError("No menu bar")

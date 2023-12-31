@@ -77,17 +77,17 @@ class Settings(QtCore.QSettings):
         return self.value("steam_user_id")
 
     @property
-    def game_list_cache(self) -> GameList:
+    def game_list_cache(self) -> GameList | None:
         cache = self.value("schemes", None)
         if cache is None:
-            return GameList()
+            return None
         logging.info("Loading game list from cache")
 
         try:
             return loads(cache)
         except Exception as exception:
             logging.warning("Failed to load game list from cache", exc_info=exception)
-            return GameList()
+            return None
 
     @game_list_cache.setter
     def game_list_cache(self, value: GameList) -> None:
