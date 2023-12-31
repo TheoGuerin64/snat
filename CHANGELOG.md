@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [0.2.1]
 - Add documentation
 - Fix typing
+- Remove useless serialisation with `pickle`
 
 ## [0.2.0]
 - Add icon
