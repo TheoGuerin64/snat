@@ -19,6 +19,15 @@ USER_ACHIEVEMENTS_URL = Template("https://api.steampowered.com/ISteamUserStats/G
 
 @dataclass
 class RequestData:
+    """Data class for storing request data
+
+    Attributes:
+        func (REPLY_FUNC): Function to call on success
+        error (ERROR_FUNC): Function to call on error
+        raw (bool): Whether the response should be parsed as JSON
+        other (Any): Other data to pass to the functions
+    """
+
     func: REPLY_FUNC
     error: ERROR_FUNC
     raw: bool
@@ -26,6 +35,15 @@ class RequestData:
 
 
 class SteamApi:
+    """Provides access to the Steam API
+
+    Attributes:
+        requests (dict[QtNetwork.QNetworkReply, RequestData]): Map of requests to their data
+        api_key (str): Steam API key
+        user_id (str): Steam user ID
+        manager (QtNetwork.QNetworkAccessManager): Network access manager
+    """
+
     def __init__(self, parent: QtWidgets.QWidget, api_key: str, user_id: str) -> None:
         self.requests: dict[QtNetwork.QNetworkReply, RequestData] = {}
         self.api_key = api_key
@@ -36,6 +54,18 @@ class SteamApi:
 
     def make_get_request(self, url: str, func: REPLY_FUNC, error: ERROR_FUNC,
                          raw: bool = False, other: Any = None) -> None:
+        """Make a GET request to the given URL
+
+        Args:
+            url (str): URL to make the request to
+            func (REPLY_FUNC): Function to call on success
+            error (ERROR_FUNC): Function to call on error
+            raw (bool, optional): Whether the response should be parsed as JSON.
+            other (Any, optional): Other data to pass to the functions.
+
+        Raises:
+            Exception: If the request creation fails
+        """
         request = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
         reply = self.manager.get(request)
         if reply is None:
@@ -43,6 +73,11 @@ class SteamApi:
         self.requests[reply] = RequestData(func, error, raw, other)
 
     def handle_response(self, reply: QtNetwork.QNetworkReply):
+        """Process the response and call the appropriate functions
+
+        Args:
+            reply (QtNetwork.QNetworkReply): Network reply
+        """
         request_data = self.requests.pop(reply)
         match reply.error():
             case QtNetwork.QNetworkReply.NetworkError.NoError:
@@ -57,14 +92,34 @@ class SteamApi:
                 logging.warning("GET Status ERROR (%d) %s", status_code, url)
 
     def get_owned_games(self, func: REPLY_FUNC, error: ERROR_FUNC) -> None:
+        """Get the list of owned games
+
+        Args:
+            func (REPLY_FUNC): Function to call on success
+            error (ERROR_FUNC): Function to call on error
+        """
         url = OWNED_GAMES_URL.substitute(api_key=self.api_key, user_id=self.user_id)
         self.make_get_request(url, func, error)
 
     def get_game_schemas(self, app_ids: list[int], func: REPLY_FUNC, error: ERROR_FUNC) -> None:
+        """Get the schemas for the given app IDs
+
+        Args:
+            app_ids (list[int]): App IDs to get the schemas for
+            func (REPLY_FUNC): Function to call on success
+            error (ERROR_FUNC): Function to call on error
+        """
         for app_id in app_ids:
             url = GAME_SCHEMA_URL.substitute(api_key=self.api_key, user_id=self.user_id, app_id=app_id)
             self.make_get_request(url, func, error, other=app_id)
 
-    def get_game_achievements(self, app_id: int, func: REPLY_FUNC, error: ERROR_FUNC) -> None:
+    def get_user_achievements(self, app_id: int, func: REPLY_FUNC, error: ERROR_FUNC) -> None:
+        """Get the user achievements for the given app ID
+
+        Args:
+            app_id (int): App ID to get the achievements for
+            func (REPLY_FUNC): Function to call on success
+            error (ERROR_FUNC): Function to call on error
+        """
         url = USER_ACHIEVEMENTS_URL.substitute(api_key=self.api_key, user_id=self.user_id, app_id=app_id)
         self.make_get_request(url, func, error, other=app_id)

@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.1]
+- Add documentation
+
 ## [0.2.0]
 - Add icon
 - Add version in logs
