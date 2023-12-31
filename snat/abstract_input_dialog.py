@@ -132,7 +132,7 @@ class AbstractRequestInputDialog(AbstractInputDialog):
         request = QtNetwork.QNetworkRequest(url)
         self.manager.get(request)
 
-    def handle_response(self, reply: QtNetwork.QNetworkReply):
+    def handle_response(self, reply: QtNetwork.QNetworkReply) -> None:
         """Handles the response from the request.
 
         Args:

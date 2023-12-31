@@ -53,7 +53,7 @@ def start_app() -> None:
     sys.exit(app.exec())
 
 
-def main():
+def main() -> None:
     """Main entry point of the application."""
     args = parse_args()
     configure_logging(args.debug)
