@@ -31,3 +31,6 @@ dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools.package-data]
 "snat.asset" = ["*.ico"]
+
+[tool.mypy]
+strict = true
