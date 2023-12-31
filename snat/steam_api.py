@@ -65,6 +65,6 @@ class SteamApi:
             url = GAME_SCHEMA_URL.substitute(api_key=self.api_key, user_id=self.user_id, app_id=app_id)
             self.make_get_request(url, func, error, other=app_id)
 
-    def get_game_achievements(self, app_id: int, func: REPLY_FUNC, error: ERROR_FUNC) -> None:
+    def get_user_achievements(self, app_id: int, func: REPLY_FUNC, error: ERROR_FUNC) -> None:
         url = USER_ACHIEVEMENTS_URL.substitute(api_key=self.api_key, user_id=self.user_id, app_id=app_id)
         self.make_get_request(url, func, error, other=app_id)

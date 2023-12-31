@@ -29,11 +29,11 @@ class AchievementWidget(QtWidgets.QListWidgetItem):
     """A widget that displays an achievement
 
     Attributes:
-        icon_url (str): The URL of the icon
+        icon_url (str): URL of the icon
 
     Args:
-        name (str): The name of the achievement
-        icon_url (str): The URL of the icon
+        name (str): Name of the achievement
+        icon_url (str): URL of the icon
         steam_api (snat.steam_api.SteamApi): SteamApi instance
     """
 
@@ -52,21 +52,21 @@ class AchievementWidget(QtWidgets.QListWidgetItem):
         if pixmap is not None:
             self.setIcon(QtGui.QIcon(pixmap))
         else:
-            steam_api.make_get_request(self.icon_url, self.handle_response, self.handle_error, True, self.icon_url)
+            steam_api.make_get_request(self.icon_url, self.handle_icon_response, self.handle_icon_error, True)
 
-    def handle_response(self, data: bytes, _) -> None:
-        """Handle the response of the icon request
+    def handle_icon_response(self, icon: bytes, _) -> None:
+        """Load the icon from the response and add it to the cache
 
         Args:
-            data (bytes): The data of the icon
+            icon (bytes): Icon data
         """
         pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(data)
+        pixmap.loadFromData(icon)
         self.setIcon(QtGui.QIcon(pixmap))
         QtGui.QPixmapCache.insert(self.icon_url, pixmap)
 
-    def handle_error(self, *_) -> None:
-        """Handle the error of the icon request"""
+    def handle_icon_error(self, *_) -> None:
+        """Leave the icon empty"""
         logging.warning("Failed to load icon")
 
 
@@ -82,7 +82,7 @@ class AchievementList(QtWidgets.QListWidget):
         game_list (snat.game_list.GameList): GameList instance
 
     Args:
-        parent (QtWidgets.QWidget): The parent widget
+        parent (QtWidgets.QWidget): Parent widget
         steam_api (snat.steam_api.SteamApi): SteamApi instance
         game_list (snat.game_list.GameList): GameList instance
     """
@@ -99,7 +99,7 @@ class AchievementList(QtWidgets.QListWidget):
         """Add achievements to the list
 
         Args:
-            achievements (list[snat.game_list.Achievement]): The achievements to add
+            achievements (list[snat.game_list.Achievement]): Achievements to add
         """
         if achievements:
             self.setEnabled(True)
@@ -109,8 +109,8 @@ class AchievementList(QtWidgets.QListWidget):
             self.setEnabled(False)
             self.addItem(self.COMPLETED_MESSAGE)
 
-    def load_achievements(self, app_id: int | None) -> None:
-        """Load the achievements for the given app_id
+    def load_user_achievements(self, app_id: int | None) -> None:
+        """Load the user achievements for the given app_id
 
         Args:
             app_id (int | None): The app_id to load the achievements for
@@ -121,27 +121,28 @@ class AchievementList(QtWidgets.QListWidget):
             self.addItem(self.WELCOME_MESSAGE)
             return
 
-        self.steam_api.get_game_achievements(app_id, self.handle_game_achievements, self.handle_error)
+        self.steam_api.get_user_achievements(app_id, self.handle_user_achiev_response, self.handle_user_achiev_error)
 
-    def handle_game_achievements(self, data: Any, app_id: int) -> None:
-        """Handle the response of the game achievements request
+    def handle_user_achiev_response(self, data: Any, app_id: int) -> None:
+        """Load the user achievements from the response
 
         Args:
-            data (Any): The response data
-            app_id (int): The app_id of the game
+            data (Any): Response data
+            app_id (int): app_id of the game
         """
         game = self.game_list.get(app_id)
         if game is None:
             logging.error(f"Failed to load schema for app_id {app_id}")
             return
+
         achievements: list[Achievement] = []
         for raw_achievement in data["playerstats"]["achievements"]:
             if not raw_achievement["achieved"]:
                 achievements.append(game.schema[raw_achievement["apiname"]])
         self.add_achievements(achievements)
 
-    def handle_error(self, *_) -> None:
-        """Handle the error of the game achievements request"""
+    def handle_user_achiev_error(self, *_) -> None:
+        """Display an error message and disable the list"""
         self.setEnabled(False)
         QtWidgets.QMessageBox.critical(self, "Error", "Failed to load achievements!\n"
                                        "(You can try to change the game)")

@@ -10,15 +10,15 @@ class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
     """Base class for dialogs that require user input.
 
     Abstract constants:
-        TITLE (str): The title of the dialog
-        TEXT (str): The text to display above the input box
-        INPUT_NAME (str): The name of the input box
+        TITLE (str): Title of the dialog
+        TEXT (str): Text to display above the input box
+        INPUT_NAME (str): Name of the input box
 
     Abstract methods:
         validate: Validates the input
 
     Args:
-        parent (PyQt6.QtWidgets.QWidget | None): The parent widget
+        parent (PyQt6.QtWidgets.QWidget | None): Parent widget
     """
 
     TITLE: str
@@ -30,7 +30,7 @@ class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
         self.init_ui()
 
     def init_ui(self) -> None:
-        """Initializes the UI."""
+        """Configure the window, create widgets and set the layout."""
         self.setWindowTitle(self.TITLE)
 
         layout = QtWidgets.QVBoxLayout(self)
@@ -80,9 +80,9 @@ class AbstractRequestInputDialog(AbstractInputDialog):
     """Override AbstractInputDialog to make a request after validating the input.
 
     Abstract constants:
-        TITLE (str): The title of the dialog
-        TEXT (str): The text to display above the input box
-        INPUT_NAME (str): The name of the input box
+        TITLE (str): Title of the dialog
+        TEXT (str): Text to display above the input box
+        INPUT_NAME (str): Name of the input box
 
     Abstract methods:
         validate: Validates the input
@@ -90,10 +90,10 @@ class AbstractRequestInputDialog(AbstractInputDialog):
         validate_reply: Validates the reply from the request
 
     Attributes:
-        manager (PyQt6.QtNetwork.QNetworkAccessManager): The network access manager
+        manager (PyQt6.QtNetwork.QNetworkAccessManager): Network access manager
 
     Args:
-        parent (PyQt6.QtWidgets.QWidget | None): The parent widget
+        parent (PyQt6.QtWidgets.QWidget | None): Parent widget
     """
 
     def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:

@@ -52,7 +52,7 @@ class GameDashboard(QtWidgets.QWidget):
     def on_game_selected(self, app_id: int) -> None:
         """Cache the selected game and load the achievements"""
         self.settings.selected_game = app_id
-        self.achievement_list.load_achievements(app_id)
+        self.achievement_list.load_user_achievements(app_id)
 
 
 class App(QtWidgets.QMainWindow):

@@ -21,14 +21,14 @@ class AboutDialog(QtWidgets.QDialog):
         self.init_ui()
 
     def init_ui(self) -> None:
-        """Initialize the user interface."""
+        """Configure the window, create widgets and set the layout."""
         self.setWindowTitle("About")
         self.setWindowIcon(QtGui.QIcon("asset:icon.ico"))
 
         layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(layout)
 
-        top = self.init_top()
+        top = self.create_top_layout()
         layout.addLayout(top)
 
         button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.StandardButton.Ok, self)
@@ -37,28 +37,29 @@ class AboutDialog(QtWidgets.QDialog):
 
         self.setFixedSize(self.sizeHint())
 
-    def init_top(self) -> QtWidgets.QHBoxLayout:
-        """Initialize the top part of the user interface.
+    def create_top_layout(self) -> QtWidgets.QHBoxLayout:
+        """Create the top layout, add logo and form.
 
         Returns:
-            PyQt6.QtWidgets.QHBoxLayout: The top layout
+            PyQt6.QtWidgets.QHBoxLayout: Top layout
         """
         top_layout = QtWidgets.QHBoxLayout()
+
         label = QtWidgets.QLabel(self)
         label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         label.setPixmap(QtGui.QPixmap("asset:icon.ico").scaledToHeight(64))
         top_layout.addWidget(label)
 
-        form = self.init_form()
+        form = self.create_form()
         top_layout.addLayout(form)
 
         return top_layout
 
-    def init_form(self) -> QtWidgets.QFormLayout:
-        """Initialize the form layout.
+    def create_form(self) -> QtWidgets.QFormLayout:
+        """Create the form layout and add rows.
 
         Returns:
-            PyQt6.QtWidgets.QFormLayout: The form layout
+            PyQt6.QtWidgets.QFormLayout: Form layout
         """
         form = QtWidgets.QFormLayout()
         version_url = f"{CHANGELOG_URL}#{__version__.replace('.', '')}"
