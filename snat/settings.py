@@ -1,5 +1,4 @@
 import logging
-from pickle import dumps, loads
 from string import Template
 
 from PyQt6 import QtCore, QtNetwork, QtWidgets
@@ -100,49 +99,58 @@ class Settings(QtCore.QSettings):
     @property
     def steam_api_key(self) -> str:
         """Loads the Steam API key from the settings"""
-        return self.value("steam_api_key")
+        value = self.value("steam_api_key", type=str)
+        if not isinstance(value, str):
+            raise TypeError("steam_api_key is not a string")
+        return value
 
     @property
     def steam_user_id(self) -> str:
         """Set the Steam user ID in the settings"""
-        return self.value("steam_user_id")
+        value = self.value("steam_user_id", type=str)
+        if not isinstance(value, str):
+            raise RuntimeError("steam_user_id is not a string")
+        return value
 
     @property
     def game_list_cache(self) -> GameList | None:
         """Loads the game list from the settings and deserializes it or returns None if it is not set"""
-        cache = self.value("schemes", None)
-        if cache is None:
+        value = self.value("schemes", type=bytes, defaultValue=None)
+        if value is None:
             return None
-
-        logging.info("Loading game list from cache")
-        try:
-            return loads(cache)
-        except Exception as exception:
-            logging.warning("Failed to load game list from cache", exc_info=exception)
-            return None
+        if not isinstance(value, dict):
+            raise TypeError("game_list is not a GameList")
+        return value
 
     @game_list_cache.setter
     def game_list_cache(self, value: GameList) -> None:
         """Serializes the game list and stores it in the settings"""
-        self.setValue("schemes", dumps(value))
+        self.setValue("schemes", value)
 
     @property
     def selected_game(self) -> int | None:
         """Loads the selected game from the settings or returns None if it is not set"""
-        value = self.value("selected_game", None)
+        value = self.value("selected_game", None, type=int)
         if value is None:
             return None
-        return int(value)
+        if not isinstance(value, int):
+            raise TypeError("selected_game is not an int")
+        return value
 
     @selected_game.setter
     def selected_game(self, value: int) -> None:
         """Sets the selected game in the settings"""
-        self.setValue("selected_game", str(value))
+        self.setValue("selected_game", value)
 
     @property
     def position(self) -> QtCore.QPoint | None:
         """Loads the window position from the settings or returns None if it is not set"""
-        return self.value("position", None)
+        value = self.value("position", None, type=QtCore.QPoint)
+        if value is None:
+            return None
+        if not isinstance(value, QtCore.QPoint):
+            raise TypeError("position is not a QPoint")
+        return value
 
     @position.setter
     def position(self, value: QtCore.QPoint) -> None:
@@ -152,7 +160,12 @@ class Settings(QtCore.QSettings):
     @property
     def size(self) -> QtCore.QSize | None:
         """Loads the window size from the settings or returns None if it is not set"""
-        return self.value("size", None)
+        value = self.value("size", None, type=QtCore.QSize)
+        if value is None:
+            return None
+        if not isinstance(value, QtCore.QSize):
+            raise TypeError("size is not a QSize")
+        return value
 
     @size.setter
     def size(self, value: QtCore.QSize) -> None:

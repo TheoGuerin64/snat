@@ -72,7 +72,7 @@ class SteamApi:
             raise Exception("Network error")
         self.requests[reply] = RequestData(func, error, raw, other)
 
-    def handle_response(self, reply: QtNetwork.QNetworkReply):
+    def handle_response(self, reply: QtNetwork.QNetworkReply) -> None:
         """Process the response and call the appropriate functions
 
         Args:

@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtNetwork, QtWidgets
 
 from .steam_api import SteamApi
 from .utils import DotAnimationLabel
@@ -121,11 +121,12 @@ class GameListBar(QtWidgets.QWidget):
         self.schema_downloaded_count = 0
         self.steam_api.get_owned_games(self.handle_owned_games_response, self.handle_owned_games_error)
 
-    def handle_owned_games_response(self, data: Any, _) -> None:
+    def handle_owned_games_response(self, data: Any, other: None) -> None:
         """Add owned games to the game list and start the schemas downloading.
 
         Args:
             data (Any): JSON data from the Steam API
+            other (None): Unused
         """
         for owned_game in data["response"]["games"]:
             if owned_game["playtime_forever"] > 0:
@@ -137,8 +138,13 @@ class GameListBar(QtWidgets.QWidget):
         app_ids = list(self.game_list.keys())
         self.steam_api.get_game_schemas(app_ids, self.handle_game_schemas_response, self.handle_game_schemas_error)
 
-    def handle_owned_games_error(self, *_) -> None:
-        """Show an error message."""
+    def handle_owned_games_error(self, error: QtNetwork.QNetworkReply.NetworkError, other: None) -> None:
+        """Show an error message.
+
+        Args:
+            error (QtNetwork.QNetworkReply.NetworkError): Network error
+            other (None): Unused
+        """
         self.progress_dialog.close()
         QtWidgets.QMessageBox.critical(self, "Error", "Failed to load owned games!\n"
                                        "(You can try to refresh the game list or restart the application)")
@@ -199,8 +205,13 @@ class GameListBar(QtWidgets.QWidget):
             self.loaded.emit()
             self.progress_dialog.close()
 
-    def handle_game_schemas_error(self, *_) -> None:
-        """Stop the schemas downloading and show an error message."""
+    def handle_game_schemas_error(self, error: QtNetwork.QNetworkReply.NetworkError, app_id: int) -> None:
+        """Stop the schemas downloading and show an error message.
+
+        Args:
+            error (QtNetwork.QNetworkReply.NetworkError): Network error
+            app_id (int): Game app_id
+        """
         if self.schema_downloaded_count == -1:
             return
 
@@ -208,7 +219,7 @@ class GameListBar(QtWidgets.QWidget):
         self.progress_dialog.close()
         QtWidgets.QMessageBox.critical(self, "Error", "Failed to load games schemas!\n"
                                        "(You can try to refresh the game list or restart the application)")
-        logging.error("Failed to load games schemas")
+        logging.error("Failed to load %d schema", app_id)
 
     def index_changed(self, index: int) -> None:
         """Emit the selected signal with the selected game app_id.

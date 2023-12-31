@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtNetwork, QtWidgets
 
 from .game_list import Achievement, GameList
 from .steam_api import SteamApi
@@ -54,19 +54,25 @@ class AchievementWidget(QtWidgets.QListWidgetItem):
         else:
             steam_api.make_get_request(self.icon_url, self.handle_icon_response, self.handle_icon_error, True)
 
-    def handle_icon_response(self, icon: bytes, _) -> None:
+    def handle_icon_response(self, icon: bytes, other: None) -> None:
         """Load the icon from the response and add it to the cache
 
         Args:
             icon (bytes): Icon data
+            other (None): Unused
         """
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(icon)
         self.setIcon(QtGui.QIcon(pixmap))
         QtGui.QPixmapCache.insert(self.icon_url, pixmap)
 
-    def handle_icon_error(self, *_) -> None:
-        """Leave the icon empty"""
+    def handle_icon_error(self, error: QtNetwork.QNetworkReply.NetworkError, other: None) -> None:
+        """Leave the icon empty
+
+        Args:
+            error (QtNetwork.QNetworkReply.NetworkError): Network error
+            other (None): Unused
+        """
         logging.warning("Failed to load icon")
 
 
@@ -141,8 +147,13 @@ class AchievementList(QtWidgets.QListWidget):
                 achievements.append(game.schema[raw_achievement["apiname"]])
         self.add_achievements(achievements)
 
-    def handle_user_achiev_error(self, *_) -> None:
-        """Display an error message and disable the list"""
+    def handle_user_achiev_error(self, error: QtNetwork.QNetworkReply.NetworkError, other: None) -> None:
+        """Display an error message and disable the list
+
+        Args:
+            error (QtNetwork.QNetworkReply.NetworkError): Network error
+            other (None): Unused
+        """
         self.setEnabled(False)
         QtWidgets.QMessageBox.critical(self, "Error", "Failed to load achievements!\n"
                                        "(You can try to change the game)")
