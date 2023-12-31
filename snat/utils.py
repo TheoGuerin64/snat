@@ -5,7 +5,6 @@ from PyQt6 import QtCore, QtWidgets, sip
 
 class ABCQtMeta(sip.wrappertype, ABCMeta):
     """Metaclass for abstract classes using PyQt6."""
-    pass
 
 
 class DotAnimationLabel(QtWidgets.QLabel):
