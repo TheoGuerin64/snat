@@ -99,19 +99,22 @@ class Settings(QtCore.QSettings):
 
     @property
     def steam_api_key(self) -> str:
+        """Loads the Steam API key from the settings"""
         return self.value("steam_api_key")
 
     @property
     def steam_user_id(self) -> str:
+        """Set the Steam user ID in the settings"""
         return self.value("steam_user_id")
 
     @property
     def game_list_cache(self) -> GameList | None:
+        """Loads the game list from the settings and deserializes it or returns None if it is not set"""
         cache = self.value("schemes", None)
         if cache is None:
             return None
-        logging.info("Loading game list from cache")
 
+        logging.info("Loading game list from cache")
         try:
             return loads(cache)
         except Exception as exception:
@@ -120,10 +123,12 @@ class Settings(QtCore.QSettings):
 
     @game_list_cache.setter
     def game_list_cache(self, value: GameList) -> None:
+        """Serializes the game list and stores it in the settings"""
         self.setValue("schemes", dumps(value))
 
     @property
     def selected_game(self) -> int | None:
+        """Loads the selected game from the settings or returns None if it is not set"""
         value = self.value("selected_game", None)
         if value is None:
             return None
@@ -131,20 +136,25 @@ class Settings(QtCore.QSettings):
 
     @selected_game.setter
     def selected_game(self, value: int) -> None:
+        """Sets the selected game in the settings"""
         self.setValue("selected_game", str(value))
 
     @property
     def position(self) -> QtCore.QPoint | None:
+        """Loads the window position from the settings or returns None if it is not set"""
         return self.value("position", None)
 
     @position.setter
     def position(self, value: QtCore.QPoint) -> None:
+        """Sets the window position in the settings"""
         self.setValue("position", value)
 
     @property
     def size(self) -> QtCore.QSize | None:
+        """Loads the window size from the settings or returns None if it is not set"""
         return self.value("size", None)
 
     @size.setter
     def size(self, value: QtCore.QSize) -> None:
+        """Sets the window size in the settings"""
         self.setValue("size", value)
