@@ -136,7 +136,7 @@ class Settings(QtCore.QSettings):
         Returns:
             GameList | None: Game list or None if it is not set
         """
-        value = self.value("schemes", type=bytes, defaultValue=None)
+        value = self.value("schemes", type=dict, defaultValue=None)
         if value is None:
             return None
         if not isinstance(value, dict):
