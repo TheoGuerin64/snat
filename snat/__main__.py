@@ -13,7 +13,7 @@ def parse_args() -> Namespace:
     """Parse the command line arguments.
 
     Returns:
-        argparse.Namespace: The parsed arguments
+        argparse.Namespace: Parsed arguments
     """
     parser = ArgumentParser(description="Track your Steam achievements", epilog="Made by Theo Guerin")
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug logging")
