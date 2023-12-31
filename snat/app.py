@@ -31,8 +31,10 @@ class GameDashboard(QtWidgets.QWidget):
         self.game_list_bar.loaded.connect(self.on_games_loaded)
         self.game_list_bar.selected.connect(self.on_game_selected)
 
-        if self.game_list is not None and self.settings.selected_game is not None:
-            self.game_list_bar.select_game(self.settings.selected_game)
+        if self.game_list is not None:
+            selected_game = self.settings.selected_game
+            if selected_game is not None:
+                self.game_list_bar.select_game(selected_game)
 
     def init_ui(self) -> None:
         """Create widgets and set the layout."""

@@ -4,7 +4,8 @@ from string import Template
 
 from PyQt6 import QtCore, QtNetwork, QtWidgets
 
-from .abstract_input_dialog import AbstractRequestInputDialog
+from .abstract_input_dialog import (AbstractInputDialog,
+                                    AbstractRequestInputDialog)
 from .game_list import GameList
 
 API_KEY_URL = "https://steamcommunity.com/dev/apikey"
@@ -15,6 +16,8 @@ TEST_STEAM_ID_URL = Template("https://api.steampowered.com/ISteamUser/GetPlayerS
 
 
 class SteamAPIKeyDialog(AbstractRequestInputDialog):
+    """Prompts the user for their Steam API key"""
+
     TITLE = "Steam API Key"
     TEXT = f"Please enter your Steam API key (<a href='{API_KEY_URL}'>{API_KEY_URL}</a>):"
     INPUT_NAME = "key"
@@ -30,6 +33,8 @@ class SteamAPIKeyDialog(AbstractRequestInputDialog):
 
 
 class SteamUserIdDialog(AbstractRequestInputDialog):
+    """Prompts the user for their Steam ID"""
+
     TITLE = "Steam ID"
     TEXT = "Please enter your Steam ID:"
     INPUT_NAME = "Steam ID"
@@ -52,14 +57,38 @@ class SteamUserIdDialog(AbstractRequestInputDialog):
 
 
 class Settings(QtCore.QSettings):
-    def __init__(self, parent: QtWidgets.QWidget):
-        """ Raises RuntimeError if a dialog is rejected """
+    """Provides access to the application settings
+
+    Settings:
+        steam_api_key (str): Steam API key
+        steam_user_id (str): Steam user ID
+        game_list_cache (str): Cached game list
+        selected_game (int): Selected game
+        position (QtCore.QPoint): Window position
+        size (QtCore.QSize): Window size
+
+    Raises:
+        RuntimeError: If a setting is not found and the user rejects the dialog
+
+    Args:
+        parent (QtWidgets.QWidget): Parent widget
+    """
+
+    def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
         self.define_if_not_exists("steam_api_key", SteamAPIKeyDialog())
         self.define_if_not_exists("steam_user_id", SteamUserIdDialog(self.value("steam_api_key")))
 
-    def define_if_not_exists(self, key: str, dialog: AbstractRequestInputDialog) -> None:
-        """ Raises RuntimeError if the dialog is rejected """
+    def define_if_not_exists(self, key: str, dialog: AbstractInputDialog) -> None:
+        """ Shows the dialog and sets the value if it is not already set
+
+        Raises:
+            RuntimeError: If the dialog is rejected
+
+        Args:
+            key (str): Key to check
+            dialog (AbstractRequestInputDialog): Dialog to show
+        """
         if not self.contains(key):
             logging.info(f"Setting {key} not found, prompting user")
             dialog.exec()
