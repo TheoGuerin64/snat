@@ -9,6 +9,8 @@ class ABCQtMeta(sip.wrappertype, ABCMeta):
 
 
 class DotAnimationLabel(QtWidgets.QLabel):
+    """Label that displays a dot animation at the end of the text."""
+
     def __init__(self, parent: QtWidgets.QWidget) -> None:
         super().__init__(parent)
         self.timer = QtCore.QTimer(self)
@@ -16,6 +18,7 @@ class DotAnimationLabel(QtWidgets.QLabel):
         self.timer.start(400)
 
     def update_text(self) -> None:
+        """Update the text by adding or removing a dot."""
         text = self.text()
         if text.endswith("..."):
             self.setText(text[:-3])
