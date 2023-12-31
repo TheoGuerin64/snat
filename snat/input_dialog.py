@@ -1,9 +1,16 @@
 import logging
 from abc import abstractmethod
+from string import Template
 
 from PyQt6 import QtCore, QtNetwork, QtWidgets
 
 from .utils import ABCQtMeta, LinkLabel
+
+API_KEY_URL = "https://steamcommunity.com/dev/apikey"
+TEST_STEAM_API_KEY_URL = Template("https://api.steampowered.com/ISteamWebAPIUtil/GetSupportedAPIList/v1"
+                                  "?key=$api_key")
+TEST_STEAM_ID_URL = Template("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2"
+                             "?key=$api_key&steamids=$steam_id")
 
 
 class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
@@ -25,7 +32,7 @@ class AbstractInputDialog(QtWidgets.QDialog, metaclass=ABCQtMeta):
     TEXT: str
     INPUT_NAME: str
 
-    def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:
+    def __init__(self, settings: QtCore.QSettings, parent: QtWidgets.QWidget | None = None) -> None:
         super().__init__(parent)
         self.init_ui()
 
@@ -96,8 +103,8 @@ class AbstractRequestInputDialog(AbstractInputDialog):
         parent (PyQt6.QtWidgets.QWidget | None): Parent widget
     """
 
-    def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:
-        super().__init__(parent)
+    def __init__(self, settings: QtCore.QSettings, parent: QtWidgets.QWidget | None = None) -> None:
+        super().__init__(settings, parent)
         self.manager = QtNetwork.QNetworkAccessManager(self)
         self.manager.finished.connect(self.handle_response)
 
@@ -158,3 +165,44 @@ class AbstractRequestInputDialog(AbstractInputDialog):
             return
 
         self.make_request()
+
+
+class SteamAPIKeyDialog(AbstractRequestInputDialog):
+    """Prompts the user for their Steam API key"""
+
+    TITLE = "Steam API Key"
+    TEXT = f"Please enter your Steam API key (<a href='{API_KEY_URL}'>{API_KEY_URL}</a>):"
+    INPUT_NAME = "key"
+
+    def validate(self, text: str) -> bool:
+        return len(text) == 32 and text.isalnum()
+
+    def url(self, text: str) -> str:
+        return TEST_STEAM_API_KEY_URL.substitute(api_key=text)
+
+    def validate_reply(self, reply: QtNetwork.QNetworkReply) -> bool:
+        return reply.error() == QtNetwork.QNetworkReply.NetworkError.NoError
+
+
+class SteamUserIdDialog(AbstractRequestInputDialog):
+    """Prompts the user for their Steam ID"""
+
+    TITLE = "Steam ID"
+    TEXT = "Please enter your Steam ID:"
+    INPUT_NAME = "Steam ID"
+
+    def __init__(self, settings: QtCore.QSettings) -> None:
+        super().__init__(settings)
+        self.api_key = settings.value("steam_api_key", type=str)
+
+    def validate(self, text: str) -> bool:
+        return len(text) == 17 and text.isnumeric()
+
+    def url(self, text: str) -> str:
+        return TEST_STEAM_ID_URL.substitute(api_key=self.api_key, steam_id=text)
+
+    def validate_reply(self, reply: QtNetwork.QNetworkReply) -> bool:
+        if reply.error() != QtNetwork.QNetworkReply.NetworkError.NoError:
+            return False
+        text = reply.readAll().data().decode()
+        return text != "{\"response\":{\"players\":[]}}"

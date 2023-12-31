@@ -1,58 +1,12 @@
 import logging
-from string import Template
+from typing import TYPE_CHECKING, Callable
 
-from PyQt6 import QtCore, QtNetwork, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
-from .abstract_input_dialog import (AbstractInputDialog,
-                                    AbstractRequestInputDialog)
 from .game_list import GameList
 
-API_KEY_URL = "https://steamcommunity.com/dev/apikey"
-TEST_STEAM_API_KEY_URL = Template("https://api.steampowered.com/ISteamWebAPIUtil/GetSupportedAPIList/v1"
-                                  "?key=$api_key")
-TEST_STEAM_ID_URL = Template("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2"
-                             "?key=$api_key&steamids=$steam_id")
-
-
-class SteamAPIKeyDialog(AbstractRequestInputDialog):
-    """Prompts the user for their Steam API key"""
-
-    TITLE = "Steam API Key"
-    TEXT = f"Please enter your Steam API key (<a href='{API_KEY_URL}'>{API_KEY_URL}</a>):"
-    INPUT_NAME = "key"
-
-    def validate(self, text: str) -> bool:
-        return len(text) == 32 and text.isalnum()
-
-    def url(self, text: str) -> str:
-        return TEST_STEAM_API_KEY_URL.substitute(api_key=text)
-
-    def validate_reply(self, reply: QtNetwork.QNetworkReply) -> bool:
-        return reply.error() == QtNetwork.QNetworkReply.NetworkError.NoError
-
-
-class SteamUserIdDialog(AbstractRequestInputDialog):
-    """Prompts the user for their Steam ID"""
-
-    TITLE = "Steam ID"
-    TEXT = "Please enter your Steam ID:"
-    INPUT_NAME = "Steam ID"
-
-    def __init__(self, api_key: str) -> None:
-        super().__init__()
-        self.api_key = api_key
-
-    def validate(self, text: str) -> bool:
-        return len(text) == 17 and text.isnumeric()
-
-    def url(self, text: str) -> str:
-        return TEST_STEAM_ID_URL.substitute(api_key=self.api_key, steam_id=text)
-
-    def validate_reply(self, reply: QtNetwork.QNetworkReply) -> bool:
-        if reply.error() != QtNetwork.QNetworkReply.NetworkError.NoError:
-            return False
-        text = reply.readAll().data().decode()
-        return text != "{\"response\":{\"players\":[]}}"
+if TYPE_CHECKING:
+    from .input_dialog import AbstractInputDialog
 
 
 class Settings(QtCore.QSettings):
@@ -75,10 +29,10 @@ class Settings(QtCore.QSettings):
 
     def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
-        self.define_if_not_exists("steam_api_key", SteamAPIKeyDialog())
-        self.define_if_not_exists("steam_user_id", SteamUserIdDialog(self.value("steam_api_key")))
+        self.define_if_not_exists("steam_api_key", self.create_steam_api_key_dialog)
+        self.define_if_not_exists("steam_user_id", self.create_steam_user_id_dialog)
 
-    def define_if_not_exists(self, key: str, dialog: AbstractInputDialog) -> None:
+    def define_if_not_exists(self, key: str, dialog_factory: Callable[[], "AbstractInputDialog"]) -> None:
         """ Shows the dialog and sets the value if it is not already set
 
         Raises:
@@ -90,11 +44,30 @@ class Settings(QtCore.QSettings):
         """
         if not self.contains(key):
             logging.info(f"Setting {key} not found, prompting user")
+            dialog = dialog_factory()
             dialog.exec()
             if dialog.result() == QtWidgets.QDialog.DialogCode.Accepted:
                 self.setValue(key, dialog.input.text())
             else:
                 raise RuntimeError(f"No {key} provided")
+
+    def create_steam_api_key_dialog(self) -> "AbstractInputDialog":
+        """Create the Steam API key dialog
+
+        Returns:
+            AbstractInputDialog: Steam API key dialog
+        """
+        from .input_dialog import SteamAPIKeyDialog
+        return SteamAPIKeyDialog(self)
+
+    def create_steam_user_id_dialog(self) -> "AbstractInputDialog":
+        """Create the Steam user ID dialog
+
+        Returns:
+            AbstractInputDialog: Steam user ID dialog
+        """
+        from .input_dialog import SteamUserIdDialog
+        return SteamUserIdDialog(self)
 
     @property
     def steam_api_key(self) -> str:
