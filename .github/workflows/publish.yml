@@ -31,7 +31,7 @@ jobs:
 
       - name: Test typing with mypy
         run: |
-          mypy snat
+          mypy --strict snat
 
   lint:
     runs-on: ubuntu-latest
