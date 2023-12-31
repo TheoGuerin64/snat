@@ -64,12 +64,12 @@ class SteamApi:
             other (Any, optional): Other data to pass to the functions.
 
         Raises:
-            Exception: If the request creation fails
+            RuntimeError: If the request creation fails
         """
         request = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
         reply = self.manager.get(request)
         if reply is None:
-            raise Exception("Network error")
+            raise RuntimeError("Network error")
         self.requests[reply] = RequestData(func, error, raw, other)
 
     def handle_response(self, reply: QtNetwork.QNetworkReply) -> None:
