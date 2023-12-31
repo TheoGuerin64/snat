@@ -1,7 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from . import __version__
-from .about import AboutDialog
 from .achievement_list import AchievementList
 from .game_list import GameList, GameListBar
 from .settings import Settings
@@ -107,7 +106,11 @@ class App(QtWidgets.QMainWindow):
         help_menu = menu_bar.addMenu("&Help")
         if help_menu is None:
             raise RuntimeError("No help menu")
-        help_menu.addAction("&About", lambda: AboutDialog(self).exec())
+        help_menu.addAction("&About", self.open_about)
+
+    def open_about(self) -> None:
+        from .about import AboutDialog
+        AboutDialog(self).exec()
 
     def moveEvent(self, event: QtGui.QMoveEvent | None) -> None:
         """Override the move event to save the position"""
