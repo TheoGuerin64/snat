@@ -1,6 +1,6 @@
+import argparse
 import logging
 import sys
-from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 from PyQt6 import QtCore, QtWidgets
@@ -9,13 +9,13 @@ from . import __version__
 from .app import App
 
 
-def parse_args() -> Namespace:
+def parse_args() -> argparse.Namespace:
     """Parse the command line arguments.
 
     Returns:
         argparse.Namespace: Parsed arguments
     """
-    parser = ArgumentParser(description="Track your Steam achievements", epilog="Made by Theo Guerin")
+    parser = argparse.ArgumentParser(description="Track your Steam achievements", epilog="Made by Theo Guerin")
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug logging")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
     return parser.parse_args()
