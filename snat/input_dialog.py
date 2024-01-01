@@ -100,6 +100,7 @@ class AbstractRequestInputDialog(AbstractInputDialog):
         manager (PyQt6.QtNetwork.QNetworkAccessManager): Network access manager
 
     Args:
+        settings (PyQt6.QtCore.QSettings): Settings instance
         parent (PyQt6.QtWidgets.QWidget | None): Parent widget
     """
 
