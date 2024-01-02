@@ -111,7 +111,6 @@ class GameListBar(QtWidgets.QWidget):
         """
         index = self.game_combo_box.findData(app_id) if app_id != -1 else 0
         self.game_combo_box.setCurrentIndex(index)
-        self.selected.emit(app_id)
 
     def load_owned_games(self) -> None:
         """Start the owned games downloading and open the progress dialog."""

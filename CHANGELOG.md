@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.3]
+- Fix double game selection on startup (make things inconsistent and is useless)
+
 ## [0.2.2]
 - Load dinamically about.py and input_dialog.py on need (better startup time)
 
