@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.0]
 - Add version command (`-v` or `--version`)
+- Add debug command (`-d` or `--debug`)
 
 ## [0.0.0]
 - Initial release
