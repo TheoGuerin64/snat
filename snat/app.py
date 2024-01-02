@@ -2,7 +2,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 from . import __version__
 from .achievement_list import AchievementList
-from .game_list import GameList, GameListBar
+from .game_list import GameListBar
 from .settings import Settings
 from .steam_api import SteamApi
 
@@ -23,15 +23,15 @@ class GameDashboard(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget, settings: Settings) -> None:
         super().__init__(parent)
         self.settings = settings
-        self.steam_api = SteamApi(self, self.settings.steam_api_key, self.settings.steam_user_id)
-        self.game_list: GameList = self.settings.game_list_cache or GameList()
+        self.steam_api = SteamApi(self, self.settings)
+        self.game_list = self.settings.typedValue("game_list_cache", dict) or {}
         self.init_ui()
 
         self.game_list_bar.loaded.connect(self.on_games_loaded)
         self.game_list_bar.selected.connect(self.on_game_selected)
 
         if self.game_list is not None:
-            selected_game = self.settings.selected_game
+            selected_game = self.settings.typedValue("selected_game", int)
             if selected_game is not None:
                 self.game_list_bar.select_game(selected_game)
 
@@ -48,11 +48,11 @@ class GameDashboard(QtWidgets.QWidget):
 
     def on_games_loaded(self) -> None:
         """Cache the game list"""
-        self.settings.game_list_cache = self.game_list
+        self.settings.setValue("game_list_cache", self.game_list)
 
     def on_game_selected(self, app_id: int) -> None:
-        """Cache the selected game and load the achievements"""
-        self.settings.selected_game = app_id
+        """Save the selected game and load the achievements"""
+        self.settings.setValue("selected_game", app_id)
         self.achievement_list.load_user_achievements(app_id)
 
 
@@ -82,10 +82,13 @@ class App(QtWidgets.QMainWindow):
 
     def restore(self) -> None:
         """Restore the application state"""
-        if self.settings.position is not None:
-            self.move(self.settings.position)
-        if self.settings.size is not None:
-            self.resize(self.settings.size)
+        stored_position = self.settings.typedValue("position", QtCore.QPoint)
+        if stored_position is not None:
+            self.move(stored_position)
+
+        stored_size = self.settings.typedValue("size", QtCore.QSize)
+        if stored_size is not None:
+            self.resize(stored_size)
 
     def init_ui(self) -> None:
         """Set the window icon and create the menu bar"""
@@ -116,10 +119,10 @@ class App(QtWidgets.QMainWindow):
         """Override the move event to save the position"""
         super().moveEvent(event)
         if event is not None:
-            self.settings.position = event.pos()
+            self.settings.setValue("position", event.pos())
 
     def resizeEvent(self, event: QtGui.QResizeEvent | None) -> None:
         """Override the resize event to save the size"""
         super().resizeEvent(event)
         if event is not None:
-            self.settings.size = event.size()
+            self.settings.setValue("size", event.size())

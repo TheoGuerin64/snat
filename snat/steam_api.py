@@ -6,6 +6,8 @@ from typing import Any, Callable
 
 from PyQt6 import QtCore, QtNetwork, QtWidgets
 
+from .settings import Settings
+
 REPLY_FUNC = Callable[[Any, Any], None]
 ERROR_FUNC = Callable[[QtNetwork.QNetworkReply.NetworkError, Any], None]
 
@@ -42,12 +44,21 @@ class SteamApi:
         api_key (str): Steam API key
         user_id (str): Steam user ID
         manager (QtNetwork.QNetworkAccessManager): Network access manager
+
+    Args:
+        parent (QtWidgets.QWidget): Parent widget
+        settings (snat.settings.Settings): Settings instance
     """
 
-    def __init__(self, parent: QtWidgets.QWidget, api_key: str, user_id: str) -> None:
+    def __init__(self, parent: QtWidgets.QWidget, settings: Settings) -> None:
         self.requests: dict[QtNetwork.QNetworkReply, RequestData] = {}
-        self.api_key = api_key
-        self.user_id = user_id
+
+        self.api_key = settings.typedValue("steam_api_key", str)
+        if self.api_key is None:
+            raise RuntimeError("No Steam API key found")
+        self.user_id = settings.typedValue("steam_user_id", str)
+        if self.user_id is None:
+            raise RuntimeError("No Steam user ID found")
 
         self.manager = QtNetwork.QNetworkAccessManager(parent)
         self.manager.finished.connect(self.handle_response)
