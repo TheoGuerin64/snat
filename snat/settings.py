@@ -29,8 +29,8 @@ class Settings(QtCore.QSettings):
 
     def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
-        self.define_if_not_exists("steam_api_key", self.create_steam_api_key_dialog)
-        self.define_if_not_exists("steam_user_id", self.create_steam_user_id_dialog)
+        self.define_if_not_exists("steam_api_key", self.steam_api_key_dialog_factory)
+        self.define_if_not_exists("steam_user_id", self.steam_user_id_dialog_factory)
 
     def define_if_not_exists(self, key: str, dialog_factory: Callable[[], "AbstractInputDialog"]) -> None:
         """ Shows the dialog and sets the value if it is not already set
@@ -51,7 +51,7 @@ class Settings(QtCore.QSettings):
             else:
                 raise RuntimeError(f"No {key} provided")
 
-    def create_steam_api_key_dialog(self) -> "AbstractInputDialog":
+    def steam_api_key_dialog_factory(self) -> "AbstractInputDialog":
         """Create the Steam API key dialog
 
         Returns:
@@ -60,7 +60,7 @@ class Settings(QtCore.QSettings):
         from .input_dialog import SteamAPIKeyDialog
         return SteamAPIKeyDialog(self)
 
-    def create_steam_user_id_dialog(self) -> "AbstractInputDialog":
+    def steam_user_id_dialog_factory(self) -> "AbstractInputDialog":
         """Create the Steam user ID dialog
 
         Returns:
