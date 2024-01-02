@@ -109,7 +109,7 @@ class AchievementList(QtWidgets.QListWidget):
         """
         if achievements:
             self.setEnabled(True)
-            for achievement in sorted(achievements, key=lambda achievement: achievement.name.lower()):
+            for achievement in achievements:
                 self.addItem(AchievementWidget(achievement.name, achievement.icon, self.steam_api))
         else:
             self.setEnabled(False)

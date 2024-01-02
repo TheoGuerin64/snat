@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
     - Replace properties with TypedValue (seems to improve performance)
     - Improve documentation and typing
 - Fix GameList.select_game method for All Games selection (was emitting a signal)
+- Remove achivement sorting
 
 ## [0.2.3]
 - Fix double game selection on startup (make things inconsistent and is useless)
